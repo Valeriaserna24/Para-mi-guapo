@@ -404,10 +404,10 @@ ul li { margin:10px 0; font-size:1.1rem; }
     <h2>💌 Escríbeme lo que quieras chulitoo</h2>
     <textarea id="notaUsuario" rows="5" cols="40" placeholder="Escribe aquí tu nota..."></textarea>
     <div style="margin-top:15px;">
-      <button id="btnGrabar">🎤 Grabar mensaje</button>
-      <button id="btnDetener" disabled>⏹ Detener</button>
-    </div>
-    <ul id="listaMensajes" style="margin-top:10px;"></ul>
+      <button onclick="iniciarGrabacion()">🎤 Grabar mensaje</button>
+      <button onclick="detenerGrabacion()">⏹ Detener</button>
+      <ul id="listaMensajes"></ul>
+
 
     <br>
     <button onclick="guardarNota()">Guardar nota</button>
@@ -486,7 +486,7 @@ function finalizarTrivia() {
 /* ========================= 📌 MEMORAMA ========================= */
 /* ========================= 📌 MEMORAMA AVANZADO ========================= */
 // 26 fotos posibles (ajusta la ruta de tus imágenes)
-const todasLasFotos = Array.from({length: 26}, (_, i) => `img/foto${i+1}.jpg`);
+const todasLasFotos = Array.from({length: 26}, (_, i) => `img/Foto${i+1}.jpg`);
 
 let cartasJuego = [];
 let volteadas = [];
@@ -835,7 +835,42 @@ function borrarNota() {
 function cargarNotas() {
   mostrarNotas();
 }
+let mediaRecorder;
+let audioChunks = [];
 
+function iniciarGrabacion() {
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => {
+        audioChunks.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          let mensajes = JSON.parse(localStorage.getItem('mensajesVoz') || '[]');
+          mensajes.push(reader.result);
+          localStorage.setItem('mensajesVoz', JSON.stringify(mensajes));
+          mostrarMensajesVoz();
+        };
+        reader.readAsDataURL(blob);
+      };
+      mediaRecorder.start();
+      alert("🎙 Grabando... toca de nuevo para detener");
+    })
+    .catch(err => {
+      alert("Debes dar permiso al micrófono 💕");
+      console.error(err);
+    });
+}
+
+function detenerGrabacion() {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+}
 function mostrarMensajesVoz() {
   const lista = document.getElementById('listaMensajes');
   lista.innerHTML = '';
