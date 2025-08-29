@@ -887,14 +887,14 @@ function mostrarMensajesVoz() {
     audio.controls = true;
     li.appendChild(audio);
 
-    /*const btnBorrar = document.createElement('button');*/
-    btnBorrar.textContent = '🗑 Borrar';
+    const btnBorrar = document.createElement('button');
+    /*btnBorrar.textContent = '🗑 Borrar';
     btnBorrar.style.marginLeft = '10px';
     btnBorrar.onclick = () => {
       mensajes.splice(i, 1);
       localStorage.setItem('mensajesVoz', JSON.stringify(mensajes));
       mostrarMensajesVoz();
-    };
+    };*/
     li.appendChild(btnBorrar);
 
     lista.appendChild(li);
@@ -946,3 +946,4 @@ cargarPostIts();
 
 </body>
 </html>
+
